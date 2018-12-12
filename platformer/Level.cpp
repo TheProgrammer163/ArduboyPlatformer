@@ -42,9 +42,10 @@ bool Level::isTileSolidAtTile(int16_t xIndex, int16_t yIndex) {
 }
 
 bool Level::detectWall(int16_t x, int16_t y) {
+    int8_t headProtection = 4; // 3 is also a good number
     int8_t x1 = xOnGrid(x);
     int8_t x2 = xOnGrid(x+LEVEL_TILE_WIDTH-1);
-    int8_t y1 = yOnGrid(y);
+    int8_t y1 = yOnGrid(y+headProtection);
     int8_t y2 = yOnGrid(y+LEVEL_TILE_HEIGHT-1);
     
     return (getTileAtTile(x1, y1) != 0 || getTileAtTile(x2, y1) != 0 || getTileAtTile(x2, y2) != 0 || getTileAtTile(x1, y2) != 0);

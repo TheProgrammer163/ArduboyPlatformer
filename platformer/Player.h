@@ -39,6 +39,8 @@ class Player {
         void init(int16_t xpos, int16_t ypos);
         void update();
         void draw();
+        void debugDrawState();
+        void debugDrawIsOnGround();
         int16_t getX();
         int16_t getY();
         int16_t getBBoxTop();
@@ -63,4 +65,6 @@ class Player {
         void executeFallingState();
         void executeBreakingState();
         void executeDeadState();
+        int16_t getDrawX();
+        int16_t getDrawY();
 };

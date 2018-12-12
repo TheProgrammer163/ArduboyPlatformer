@@ -32,6 +32,7 @@ int16_t Player::getBBoxRight() {
 
 bool Player::detectWall(SQ11x4 xpos, SQ11x4 ypos) {
     return (Level::detectWall(xpos.getInteger()-4, ypos.getInteger()-4));
+    //return (Level::detectWall(floorFixed(xpos).getInteger()-4, floorFixed(ypos).getInteger()-4));
 }
 
 void Player::jump(SQ11x4 jumpStrength) {
@@ -65,24 +66,18 @@ SQ11x4 Player::velClamp(SQ11x4 value, SQ11x4 minimum, SQ11x4 maximum) {
 void Player::move() {
     if (this->detectWall(x+xvel, y)) {
         int8_t sign = velSign(xvel);
-        int8_t dist = ceilFixed(absFixed(xvel)).getInteger();
-        int8_t count = 0;
         xvel = 0;
-        while(count < dist && !this->detectWall(x+sign, y)) {
+        while(!this->detectWall(x+sign, y)) {
             x+=sign;
-            count++;
         }
     } else {
         x+=xvel;
     }
     if (this->detectWall(x, y+yvel)) {
         int8_t sign = velSign(yvel);
-        int8_t dist = ceilFixed(absFixed(yvel)).getInteger();
-        int8_t count = 0;
         yvel = 0;
-        while(count < dist && !this->detectWall(x, y+sign)) {
+        while(!this->detectWall(x, y+sign)) {
             y+=sign;
-            count++;
         }
     } else {
         y+=yvel;
@@ -90,7 +85,7 @@ void Player::move() {
 }
 
 void Player::changeState(PlayerState newState) {
-    if (previousState != newState) {
+    if (state != newState) {
         previousState = state;
         state = newState;
     }
@@ -102,20 +97,21 @@ void Player::executeWalkingState() {
     if (!isOnGround()) {
         changeState(PlayerState::Falling);
     }
-    if (canJump() && input.isJumpPressed()) {
+    if (input.isJumpPressed() && canJump()) {
         jump(jumpStrengthWalking);
     }
+
     if (input.xInput == 0) {
         xvel -= deceleration * velSign(xvel);
     } else {
         if (input.isRunHeld()) {
-            xvel += input.xInput*accel;
+            xvel += input.xInput * accel;
             xvel = velClamp(xvel, -velRunMax, velRunMax);
             if (isFastEnoughToRun()) {
                 changeState(PlayerState::Running);
             }
         } else {
-            xvel += input.xInput*accel;
+            xvel += input.xInput * accel;
             xvel = velClamp(xvel, -velWalkMax, velWalkMax);
         }
     }
@@ -138,7 +134,7 @@ void Player::executeRunningState() {
     } else {
         xvel += input.xInput * accel;
         xvel = velClamp(xvel, -velRunMax, velRunMax);
-        if (input.xInput == -velSign(xvel)) {
+        if (input.xInput == -velSign(xvel) && velSign(xvel) != 0) {
             changeState(PlayerState::Breaking);
         }
     }
@@ -193,20 +189,20 @@ void Player::executeBreakingState() {
     if (input.isJumpPressed() && canJump()) {
         jump(jumpStrengthWalking);
     }
-
     if (input.xInput == 0 || xvel == 0) {
         xvel -= deceleration * velSign(xvel);
         changeState(PlayerState::Walking);
-    } else {
-        if (input.xInput == -velSign(xvel)) {
-            xvel -= velSign(xvel) * deceleration * 2;
-            xvel = velClamp(xvel, -velRunMax, velRunMax);
+    } else if (input.xInput == -velSign(xvel)) {
+        if (deceleration*2 <= absFixed(xvel)) {
+            xvel -= velSign(xvel) * deceleration*2;
         } else {
-            if (isFastEnoughToRun()) {
-                changeState(PlayerState::Running);
-            } else {
-                changeState(PlayerState::Walking);
-            }
+            xvel = 0;
+        }
+    } else {
+        if (isFastEnoughToRun()) {
+            changeState(PlayerState::Running);
+        } else {
+            changeState(PlayerState::Walking);
         }
     }
     move();
@@ -219,11 +215,13 @@ void Player::executeDeadState() {
 }
 
 void Player::update() {
-
+    if (0 < coyoteTimeLeft) {
+        coyoteTimeLeft--;
+    }
     if (isOnGround()) {
         coyoteTimeLeft = coyoteTime;
-    } else if (0 < coyoteTimeLeft) {
-        coyoteTimeLeft--;
+    } else {
+        changeState(PlayerState::Falling);
     }
     if (input.xInput != 0) {
         facing = input.xInput;
@@ -232,7 +230,7 @@ void Player::update() {
         case PlayerState::Walking:
             executeWalkingState();
             break;
-        case PlayerState::Running:
+        case PlayerState::Running:;
             executeRunningState();
             break;
         case PlayerState::Falling:
@@ -246,22 +244,33 @@ void Player::update() {
             break;
     }
 }
+
+
+extern View view;
+
+int16_t Player::getDrawX() {
+    return this->getBBoxLeft()-view.getX();
+}
+int16_t Player::getDrawY() {
+    return this->getBBoxTop();
+}
+
 void Player::draw() {
-    extern View view;
-    int16_t drawX = this->getBBoxLeft()-view.getX();
-    int16_t drawY = this->getBBoxTop();
+    int16_t drawX = getDrawX();
+    int16_t drawY = getDrawY();
+    
     switch(state) {
         case PlayerState::Walking:
             Sprites::drawExternalMask(drawX, drawY, Images::playerRun, Masks::playerRun, 1, 1);
             break;
         case PlayerState::Running:
-            Sprites::drawExternalMask(drawX, drawY, Images::playerAir, Masks::playerAir, 0, 0);
+            Sprites::drawExternalMask(drawX, drawY, Images::playerRun, Masks::playerRun, 0, 0);
             break;
         case PlayerState::Falling:
             Sprites::drawExternalMask(drawX, drawY, Images::playerAir, Masks::playerAir, 0, 0);
             break;
         case PlayerState::Breaking:
-            Sprites::drawExternalMask(drawX, drawY, Images::playerBreaking, Masks::playerAir, 0, 0);
+            Sprites::drawExternalMask(drawX, drawY, Images::playerBreaking, Masks::playerBreaking, 0, 0);
             break;
         case PlayerState::Dead:
             //Sprites::drawExternalMask(drawX, drawY, Images::playerAir, Masks::playerAir, 0, 0);
@@ -269,6 +278,20 @@ void Player::draw() {
     }
 }
 
+// Draw F when the player isn't on solid ground
+void Player::debugDrawIsOnGround() {
+    int16_t drawX = getDrawX();
+    int16_t drawY = getDrawY();
+    if (!isOnGround()) {
+        Sprites::drawOverwrite(drawX, drawY, Images::playerDebugging, static_cast<uint8_t>(PlayerState::Falling));
+    }
+}
+// Draw a letter corresponding to the current state
+void Player::debugDrawState() {
+    int16_t drawX = getDrawX();
+    int16_t drawY = getDrawY();
+    Sprites::drawOverwrite(drawX, drawY, Images::playerDebugging, static_cast<uint8_t>(state));
+}
 
 
 bool Player::canJump() {
