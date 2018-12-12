@@ -28,12 +28,26 @@ void View::update(int16_t newx) {
 
 // draw the world
 void View::draw() {
-    int8_t xOffset = (this->x - ((floor(this->x / LEVEL_TILE_WIDTH) * LEVEL_TILE_WIDTH)));
+    int8_t xOffset = (this->x % LEVEL_TILE_WIDTH);
     int16_t xStart = this->x/LEVEL_TILE_WIDTH;
     for(uint8_t i = xStart; i <= viewWidthInTiles+xStart; i++) {
         for(uint8_t j = 0; j < viewHeightInTiles; j++) {
-            uint8_t tile = Level::getTileAtTile(i, j);
-            Sprites::drawSelfMasked((i-xStart)*LEVEL_TILE_WIDTH-xOffset, j*LEVEL_TILE_HEIGHT, Images::level, tile);
+            //uint8_t tile = Level::getTileAtTile(i, j);
+            //Sprites::drawSelfMasked((i-xStart)*LEVEL_TILE_WIDTH-xOffset, j*LEVEL_TILE_HEIGHT, Images::level, tile);
+            int16_t drawI = Level::xOnGrid(i * 8);
+            int16_t drawJ = Level::yOnGrid(j * 8);
+            uint8_t tile = Level::getTileAtTile(drawI, drawJ);
+            Sprites::drawSelfMasked((drawI-xStart)*LEVEL_TILE_WIDTH-xOffset, drawJ*LEVEL_TILE_HEIGHT, Images::level, tile);
+            if (tile != 0 && tile != 1) {
+                Sprites::drawSelfMasked((drawI-xStart)*LEVEL_TILE_WIDTH-xOffset, drawJ*LEVEL_TILE_HEIGHT, Images::level, 2);
+            }
         }
     }
 }
+
+
+
+
+
+
+/// End of file

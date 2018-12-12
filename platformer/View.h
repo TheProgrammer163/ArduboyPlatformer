@@ -18,3 +18,10 @@ class View {
         void clearViewToWhite();
         int16_t getX();
 };
+
+
+
+
+
+
+/// End of file

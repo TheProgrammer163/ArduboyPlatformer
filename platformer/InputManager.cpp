@@ -52,3 +52,10 @@ bool InputManager::isJumpHeld() {
 bool InputManager::isRunHeld() {
     return (0 < runHeld);
 }
+
+
+
+
+
+
+/// End of file

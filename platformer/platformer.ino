@@ -30,9 +30,20 @@ void loop() {
     arduboy.clear();
 
     player.update();
-    view.update(player.getX());
+    if (arduboy.pressed(UP_BUTTON)) {
+        view.update(4000);
+    } else {
+        view.update(player.getX());
+    }
     view.draw();
     player.draw();
     
     arduboy.display();
 }
+
+
+
+
+
+
+/// End of file

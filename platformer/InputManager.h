@@ -24,3 +24,10 @@ class InputManager {
         bool isRunHeld();
         void resetJumpPressed();
 };
+
+
+
+
+
+
+/// End of file

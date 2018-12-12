@@ -32,7 +32,6 @@ int16_t Player::getBBoxRight() {
 
 bool Player::detectWall(SQ11x4 xpos, SQ11x4 ypos) {
     return (Level::detectWall(xpos.getInteger()-4, ypos.getInteger()-4));
-    //return (Level::detectWall(floorFixed(xpos).getInteger()-4, floorFixed(ypos).getInteger()-4));
 }
 
 void Player::jump(SQ11x4 jumpStrength) {
@@ -276,6 +275,8 @@ void Player::draw() {
             //Sprites::drawExternalMask(drawX, drawY, Images::playerAir, Masks::playerAir, 0, 0);
             break;
     }
+    arduboy.println(x.getInteger()-4);
+    arduboy.print(y.getInteger()-4);
 }
 
 // Draw F when the player isn't on solid ground
@@ -304,3 +305,10 @@ bool Player::isFastEnoughToRun() {
 bool Player::isSlowEnoughToWalk() {
     return (!isFastEnoughToRun());
 }
+
+
+
+
+
+
+/// End of file

@@ -22,9 +22,11 @@ bool Level::isTileOutOfBoundsAtTile(int16_t xIndex, int16_t yIndex) {
 }
 
 uint8_t Level::getTileAtTile(int16_t xIndex, int16_t yIndex) {
+    /*
     if (Level::isTileOutOfBoundsAtTile(xIndex,yIndex)) {
-        return 1;
-    }
+        return 0;
+    }*/
+    if (yIndex >= 7) return 1;
     return pgm_read_byte(&(levelData[LEVEL_WIDTH_IN_TILES * yIndex + xIndex]));
 }
 uint8_t Level::getTileAtPixel(int16_t xpos, int16_t ypos) {
@@ -34,19 +36,22 @@ uint8_t Level::getTileAtPixel(int16_t xpos, int16_t ypos) {
 }
 
 bool Level::isTileSolidAtTile(int16_t xIndex, int16_t yIndex) {
-    if (getTileAtTile(xIndex, yIndex) == 1) {
-        return true;
-    } else {
-        return false;
-    }
+    return (getTileAtTile(xIndex, yIndex) != 0);
 }
 
 bool Level::detectWall(int16_t x, int16_t y) {
-    int8_t headProtection = 4; // 3 is also a good number
-    int8_t x1 = xOnGrid(x);
-    int8_t x2 = xOnGrid(x+LEVEL_TILE_WIDTH-1);
-    int8_t y1 = yOnGrid(y+headProtection);
-    int8_t y2 = yOnGrid(y+LEVEL_TILE_HEIGHT-1);
+    int16_t headProtection = 4; // 3 is also a good number
+    int16_t x1 = xOnGrid(x);
+    int16_t x2 = xOnGrid(x+LEVEL_TILE_WIDTH-1);
+    int16_t y1 = yOnGrid(y+headProtection);
+    int16_t y2 = yOnGrid(y+LEVEL_TILE_HEIGHT-1);
     
     return (getTileAtTile(x1, y1) != 0 || getTileAtTile(x2, y1) != 0 || getTileAtTile(x2, y2) != 0 || getTileAtTile(x1, y2) != 0);
 }
+
+
+
+
+
+
+/// End of file
