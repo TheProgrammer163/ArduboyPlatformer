@@ -208,9 +208,11 @@ void Player::executeBreakingState() {
 }
 
 void Player::executeDeadState() {
-    changeState(PlayerState::Walking);
-    x = 32;
-    y = 32;
+    changeState(PlayerState::Falling);
+    x = xstart;
+    y = ystart;
+    xvel = 0;
+    yvel = 0;
 }
 
 void Player::update() {
@@ -225,6 +227,13 @@ void Player::update() {
     if (input.xInput != 0) {
         facing = input.xInput;
     }
+
+    
+
+    if (100 <= this->getY()) {
+        changeState(PlayerState::Dead);
+    }
+    
     switch(state) {
         case PlayerState::Walking:
             executeWalkingState();
@@ -251,7 +260,7 @@ int16_t Player::getDrawX() {
     return this->getBBoxLeft()-view.getX();
 }
 int16_t Player::getDrawY() {
-    return this->getBBoxTop();
+    return this->getBBoxTop()-view.getY();
 }
 
 void Player::draw() {
@@ -275,8 +284,11 @@ void Player::draw() {
             //Sprites::drawExternalMask(drawX, drawY, Images::playerAir, Masks::playerAir, 0, 0);
             break;
     }
-    arduboy.println(x.getInteger()-4);
-    arduboy.print(y.getInteger()-4);
+    //arduboy.println(x.getInteger());
+    //arduboy.print(y.getInteger());
+    if (LEVEL_WIDTH_IN_TILES - 4 <= (x.getInteger()/8)) {
+        arduboy.print("WOOOHOOO VICTORY!!");
+    }
 }
 
 // Draw F when the player isn't on solid ground

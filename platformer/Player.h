@@ -16,8 +16,13 @@ using SQ11x4 = SFixed<11, 4>;
 
 class Player {
     private:
-        SQ11x4 x = 32;
-        SQ11x4 y = 32;
+        const SQ11x4 xstart = 20;
+        const SQ11x4 ystart = 38;
+        // For debugging the victory message
+        //const SQ11x4 xstart = 160*8 - 20;
+        //const SQ11x4 ystart = 20;
+        SQ11x4 x = xstart;
+        SQ11x4 y = ystart;
         SQ11x4 xvel = 0;
         SQ11x4 yvel = 0;
         SQ11x4 testForBug = 0;
@@ -34,7 +39,7 @@ class Player {
         int8_t facing = 1;
         uint16_t coins = 0;
         PlayerState state = PlayerState::Falling;
-        PlayerState previousState = PlayerState::Walking;
+        PlayerState previousState = PlayerState::Dead;
     public:
         void init(int16_t xpos, int16_t ypos);
         void update();

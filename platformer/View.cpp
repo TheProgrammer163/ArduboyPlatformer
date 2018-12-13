@@ -11,6 +11,9 @@
 int16_t View::getX() {
     return x;
 }
+int16_t View::getY() {
+    return y;
+}
 
 // Move the view
 void View::setPosition(int16_t xpos) {
@@ -24,23 +27,22 @@ void View::setPosition(int16_t xpos) {
 
 void View::update(int16_t newx) {
     this->setPosition(newx);
+    this->timer++;
+    this->timer%=20;
 }
 
 // draw the world
 void View::draw() {
     int8_t xOffset = (this->x % LEVEL_TILE_WIDTH);
+    int8_t yOffset = LEVEL_TILE_WIDTH/2;
     int16_t xStart = this->x/LEVEL_TILE_WIDTH;
     for(uint8_t i = xStart; i <= viewWidthInTiles+xStart; i++) {
-        for(uint8_t j = 0; j < viewHeightInTiles; j++) {
-            //uint8_t tile = Level::getTileAtTile(i, j);
-            //Sprites::drawSelfMasked((i-xStart)*LEVEL_TILE_WIDTH-xOffset, j*LEVEL_TILE_HEIGHT, Images::level, tile);
-            int16_t drawI = Level::xOnGrid(i * 8);
-            int16_t drawJ = Level::yOnGrid(j * 8);
-            uint8_t tile = Level::getTileAtTile(drawI, drawJ);
-            Sprites::drawSelfMasked((drawI-xStart)*LEVEL_TILE_WIDTH-xOffset, drawJ*LEVEL_TILE_HEIGHT, Images::level, tile);
-            if (tile != 0 && tile != 1) {
-                Sprites::drawSelfMasked((drawI-xStart)*LEVEL_TILE_WIDTH-xOffset, drawJ*LEVEL_TILE_HEIGHT, Images::level, 2);
+        for(uint8_t j = 0; j <= viewHeightInTiles; j++) {
+            uint8_t tile = Level::getTileAtTile(i, j);
+            if (tile == 4 && this->timer < 10) {
+                tile++;
             }
+            Sprites::drawSelfMasked((i-xStart)*LEVEL_TILE_WIDTH-xOffset, j*LEVEL_TILE_HEIGHT-yOffset, Images::level, tile);
         }
     }
 }

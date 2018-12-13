@@ -30,8 +30,8 @@ void loop() {
     arduboy.clear();
 
     player.update();
-    if (arduboy.pressed(UP_BUTTON)) {
-        view.update(4000);
+    if (arduboy.pressed(UP_BUTTON) && arduboy.pressed(DOWN_BUTTON) && !(arduboy.pressed(RIGHT_BUTTON) || arduboy.pressed(LEFT_BUTTON))) {
+        view.update(3000);
     } else {
         view.update(player.getX());
     }
